@@ -5,6 +5,10 @@ import CallButton from "../CallButton/CallButton.vue";
 import ElevatorCabin from "../ElevatorCabin/ElevatorCabin.vue";
 // сервисы
 import { findClosestFreeLiftIndex } from "./services/ClosestFreeElevatorService.js";
+import {
+   saveStateToLocalStorage,
+   loadStateFromLocalStorage,
+} from "./services/StateManagementService.js";
 
 const props = defineProps({
    configuration: {
@@ -13,14 +17,17 @@ const props = defineProps({
    },
 });
 
+const { elevatorShaftsData, globalQueueData } = loadStateFromLocalStorage();
+
 const elevatorShafts = reactive(
-   Array.from({ length: props.configuration.shaftCount }, () => ({
-      currentFloor: 1,
-      targetFloor: 1,
-      moving: false,
-   }))
+   elevatorShaftsData ||
+      Array.from({ length: props.configuration.shaftCount }, () => ({
+         currentFloor: 1,
+         targetFloor: 1,
+         moving: false,
+      }))
 );
-const globalQueue = ref([]);
+const globalQueue = ref(globalQueueData || []);
 
 const handleElevatorCall = (floor) => {
    const closestLiftIndex = findClosestFreeLiftIndex(floor, elevatorShafts);
@@ -52,6 +59,14 @@ elevatorShafts.forEach((lift) => {
       }
    );
 });
+
+watch(
+   [elevatorShafts, globalQueue],
+   () => {
+      saveStateToLocalStorage(elevatorShafts, globalQueue);
+   },
+   { deep: true }
+);
 </script>
 
 <template>

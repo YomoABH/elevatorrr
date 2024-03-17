@@ -52,11 +52,16 @@ const moveElevator = () => {
          setTimeout(() => {
             state.moving = false;
             emit("handleElevatorStateChanged", [index, state]);
-            toggleIdleState;
+            toggleIdleState();
          }, 3000);
       }
    }, 1000);
 };
+
+// Дабы запустить обработку движений восстановленных из стора
+if (localStorage.getItem("elevatorShafts")) {
+   moveElevator();
+}
 
 watch(
    () => elevatorState.targetFloor,
@@ -102,7 +107,9 @@ watch(
    background-color: #000000;
    transition: bottom 0.1s linear;
 }
-
+.isIdle {
+   animation: blink 1s infinite;
+}
 @keyframes blink {
    0% {
       opacity: 1;
