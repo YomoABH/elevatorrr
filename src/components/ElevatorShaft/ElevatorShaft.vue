@@ -1,8 +1,10 @@
 <script setup>
-import { defineProps, reactive } from "vue";
-// компоненты
+import { reactive, ref, defineProps, watch } from "vue";
+
 import CallButton from "../CallButton/CallButton.vue";
 import ElevatorCabin from "../ElevatorCabin/ElevatorCabin.vue";
+
+import { findClosestFreeLiftIndex } from "./services/ClosestFreeElevatorService.js";
 
 const props = defineProps({
    configuration: {
@@ -11,7 +13,6 @@ const props = defineProps({
    },
 });
 
-// состояние лифтов
 const elevatorShafts = reactive(
    Array.from({ length: props.configuration.shaftCount }, () => ({
       currentFloor: 1,
@@ -19,6 +20,40 @@ const elevatorShafts = reactive(
       moving: false,
    }))
 );
+const globalQueue = ref([]);
+
+const handleElevatorCall = (floor) => {
+   const closestLiftIndex = findClosestFreeLiftIndex(floor, elevatorShafts);
+   if (closestLiftIndex !== -1) {
+      sendElevatorToFloor(floor, closestLiftIndex);
+   } else {
+      globalQueue.value.push(floor);
+   }
+   console.log("состояние лифтов" + elevatorShafts);
+   console.log("состояние лифтов" + globalQueue);
+};
+
+const handleGlobalQueue = () => {
+   if (globalQueue.value.length > 0) {
+      const nextFloor = globalQueue.value.shift();
+      handleElevatorCall(nextFloor);
+   }
+};
+
+const sendElevatorToFloor = (floor, liftIndex) => {
+   elevatorShafts[liftIndex].targetFloor = floor;
+};
+
+elevatorShafts.forEach((lift) => {
+   watch(
+      () => lift.moving,
+      (newState) => {
+         if (!newState && globalQueue.value.length > 0) {
+            handleGlobalQueue();
+         }
+      }
+   );
+});
 </script>
 
 <template>
@@ -35,6 +70,9 @@ const elevatorShafts = reactive(
             v-for="floor in configuration.floors"
             :key="floor"
             :floor="floor"
+            :elevatorShafts="elevatorShafts"
+            :globalQueue="globalQueue"
+            @callElevator="handleElevatorCall"
          />
       </ul>
    </div>
