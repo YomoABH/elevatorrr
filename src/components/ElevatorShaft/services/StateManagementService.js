@@ -11,12 +11,34 @@ function prepareDataForStorage(elevatorShafts, globalQueue) {
    };
 }
 
-export function loadStateFromLocalStorage() {
-   const elevatorShaftsData = JSON.parse(
-      localStorage.getItem("elevatorShafts")
-   );
-   const globalQueueData = JSON.parse(localStorage.getItem("globalQueue"));
+export function loadStateFromLocalStorage(shaftCount) {
+   const elevatorShaftsData = loadItemFromLocalStorage("elevatorShafts");
+   const globalQueueData = loadItemFromLocalStorage("globalQueue");
+
+   if (!isValidData(elevatorShaftsData, globalQueueData, shaftCount)) {
+      clearLocalStorage();
+      return { elevatorShaftsData: null, globalQueueData: null };
+   }
+
    return { elevatorShaftsData, globalQueueData };
+}
+
+function loadItemFromLocalStorage(key) {
+   const rawData = localStorage.getItem(key);
+   return rawData ? JSON.parse(rawData) : null;
+}
+
+function isValidData(elevatorShaftsData, globalQueueData, shaftCount) {
+   return (
+      Array.isArray(elevatorShaftsData) &&
+      elevatorShaftsData.length === shaftCount &&
+      Array.isArray(globalQueueData)
+   );
+}
+
+function clearLocalStorage() {
+   localStorage.removeItem("elevatorShafts");
+   localStorage.removeItem("globalQueue");
 }
 
 export function saveStateToLocalStorage(elevatorShafts, globalQueue) {

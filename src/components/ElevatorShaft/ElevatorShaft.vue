@@ -17,7 +17,9 @@ const props = defineProps({
    },
 });
 
-const { elevatorShaftsData, globalQueueData } = loadStateFromLocalStorage();
+const { elevatorShaftsData, globalQueueData } = loadStateFromLocalStorage(
+   props.configuration.shaftCount
+);
 
 const elevatorShafts = reactive(
    elevatorShaftsData ||

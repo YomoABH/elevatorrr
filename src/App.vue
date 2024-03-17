@@ -1,9 +1,10 @@
 <script setup>
 import ElevatorShaft from "./components/ElevatorShaft/ElevatorShaft.vue";
 
+// единственное что, после изменения конфига нужно чистить localStorage
 const configuration = {
-   floors: 7,
-   shaftCount: 3,
+   floors: 5,
+   shaftCount: 5,
 };
 </script>
 
