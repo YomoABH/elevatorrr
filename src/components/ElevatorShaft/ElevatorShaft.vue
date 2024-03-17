@@ -29,8 +29,6 @@ const handleElevatorCall = (floor) => {
    } else {
       globalQueue.value.push(floor);
    }
-   console.log("состояние лифтов" + elevatorShafts);
-   console.log("состояние лифтов" + globalQueue);
 };
 
 const handleGlobalQueue = () => {

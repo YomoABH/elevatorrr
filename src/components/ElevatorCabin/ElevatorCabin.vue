@@ -26,6 +26,12 @@ const state = reactive(elevatorState);
 // для табла информации
 const direction = ref("");
 
+// в ответе за мерцание лифта
+const isIdle = ref(false);
+const toggleIdleState = () => {
+   isIdle.value = !isIdle.value;
+};
+
 const moveElevator = () => {
    if (state.moving) return;
 
@@ -41,10 +47,12 @@ const moveElevator = () => {
       const reachedTargetFloor = state.currentFloor === state.targetFloor;
       if (reachedTargetFloor) {
          clearInterval(elevatorInterval);
+         toggleIdleState();
          // имитация отдыха
          setTimeout(() => {
             state.moving = false;
             emit("handleElevatorStateChanged", [index, state]);
+            toggleIdleState;
          }, 3000);
       }
    }, 1000);
@@ -62,12 +70,17 @@ watch(
 <template>
    <li class="cabine">
       <div
+         :class="{ isIdle: isIdle }"
          :style="{
             height: 100 / floorCount + 'vh',
             bottom: (100 / floorCount) * (state.currentFloor - 1) + 'vh',
          }"
       >
-         <IndicatorBoard />
+         <IndicatorBoard
+            v-show="state.moving"
+            :targetFloor="state.targetFloor"
+            :diraction="direction"
+         />
       </div>
    </li>
 </template>
@@ -88,5 +101,17 @@ watch(
    transform: translate(-50%, 0);
    background-color: #000000;
    transition: bottom 0.1s linear;
+}
+
+@keyframes blink {
+   0% {
+      opacity: 1;
+   }
+   50% {
+      opacity: 0.5;
+   }
+   100% {
+      opacity: 1;
+   }
 }
 </style>
