@@ -1,9 +1,9 @@
 <script setup>
 import { reactive, ref, defineProps, watch } from "vue";
-
+//компоненты
 import CallButton from "../CallButton/CallButton.vue";
 import ElevatorCabin from "../ElevatorCabin/ElevatorCabin.vue";
-
+// сервисы
 import { findClosestFreeLiftIndex } from "./services/ClosestFreeElevatorService.js";
 
 const props = defineProps({
@@ -62,6 +62,8 @@ elevatorShafts.forEach((lift) => {
          <ElevatorCabin
             v-for="(elevator, index) in elevatorShafts"
             :key="index"
+            :elevatorState="elevator"
+            :index="index"
             :floorCount="configuration.floors"
          />
       </ul>
